@@ -222,23 +222,149 @@ export function generatePdf(data: ReportData): jsPDF {
 
     doc.setFontSize(18);
     doc.setTextColor(...SKY);
-    doc.text('Cost of Living', margin, y);
+    doc.text('The Real Cost of Living Here', margin, y);
     y += 8;
 
     doc.setFontSize(9);
     doc.setTextColor(...GRAY);
-    doc.text('Property costs + transport + everyday expenses — how much it really costs to live here.', margin, y);
-    y += 8;
+    doc.text('Property costs are just the start. Here\'s what it actually costs when you add transport and everyday life.', margin, y);
+    y += 4;
 
     doc.setDrawColor(...SKY);
-    doc.setLineWidth(0.5);
+    doc.setLineWidth(0.8);
     doc.line(margin, y, pageWidth - margin, y);
     y += 10;
 
-    // All-in summary
+    // --- The Big Picture ---
+    const monthlyIncome = inputs.yourAnnualIncome / 12 + (inputs.hasPartner ? inputs.partnerAnnualIncome / 12 : 0);
+    const housingPct = monthlyIncome > 0 ? (costs.totalMonthly / monthlyIncome) * 100 : 0;
+    const totalPct = monthlyIncome > 0 ? (col.totalMonthlyAllIn / monthlyIncome) * 100 : 0;
+    const leftover = monthlyIncome - col.totalMonthlyAllIn;
+    const annualDays = Math.round(col.annualCommuteHours / 24);
+    const tenYearDays = Math.round(col.tenYearCommuteHours / 24);
+
     doc.setFontSize(14);
     doc.setTextColor(...DARK);
-    doc.text('All-In Monthly Cost', margin, y);
+    doc.text('The Big Picture', margin, y);
+    y += 8;
+
+    const GREEN: Color3 = [22, 163, 74];
+    const RED: Color3 = [220, 38, 38];
+
+    autoTable(doc, {
+      startY: y,
+      margin: { left: margin, right: margin },
+      theme: 'plain',
+      styles: { fontSize: 11, cellPadding: 5 },
+      columnStyles: {
+        0: { textColor: GRAY, fontStyle: 'normal' },
+        1: { textColor: DARK, fontStyle: 'bold', halign: 'right' },
+      },
+      body: [
+        ['Total monthly cost (property + transport + living)', formatDollar(col.totalMonthlyAllIn)],
+        ['Total annual cost', formatDollar(col.annualAllIn)],
+        ['Over 10 years', formatDollar(col.tenYearAllIn)],
+        ...(monthlyIncome > 0 ? [
+          ['Left over each month after all costs', formatDollar(leftover)],
+        ] : []),
+      ],
+    });
+
+    y = getFinalY(doc) + 10;
+
+    // --- Income & Affordability ---
+    if (monthlyIncome > 0) {
+      doc.setFontSize(14);
+      doc.setTextColor(...DARK);
+      doc.text('Income & Affordability', margin, y);
+      y += 3;
+      doc.setFontSize(9);
+      doc.setTextColor(...GRAY);
+      const incomeLabel = inputs.hasPartner
+        ? `Based on combined take-home pay of ${formatDollar(inputs.yourAnnualIncome + inputs.partnerAnnualIncome)}/yr (${formatDollar(monthlyIncome)}/mo)`
+        : `Based on take-home pay of ${formatDollar(inputs.yourAnnualIncome)}/yr (${formatDollar(monthlyIncome)}/mo)`;
+      doc.text(incomeLabel, margin, y);
+      y += 7;
+
+      const transportPct = monthlyIncome > 0 ? (col.monthlyTransportCost / monthlyIncome) * 100 : 0;
+      const livingPct = monthlyIncome > 0 ? (col.monthlyLivingExpenses / monthlyIncome) * 100 : 0;
+
+      autoTable(doc, {
+        startY: y,
+        margin: { left: margin, right: margin },
+        theme: 'grid',
+        headStyles: { fillColor: SKY, textColor: WHITE, fontStyle: 'bold', fontSize: 10 },
+        styles: { fontSize: 10, cellPadding: 4 },
+        head: [['Category', 'Monthly', '% of income']],
+        body: [
+          ['Housing costs', formatDollar(costs.totalMonthly), `${housingPct.toFixed(0)}%`],
+          ['Transport', formatDollar(col.monthlyTransportCost), `${transportPct.toFixed(0)}%`],
+          ['Living expenses', formatDollar(col.monthlyLivingExpenses), `${livingPct.toFixed(0)}%`],
+        ],
+        foot: [['All-in total', formatDollar(col.totalMonthlyAllIn), `${totalPct.toFixed(0)}%`]],
+        footStyles: { fillColor: LIGHT_SKY, textColor: SKY, fontStyle: 'bold' },
+      });
+
+      y = getFinalY(doc) + 4;
+
+      // Affordability verdict
+      doc.setFontSize(9);
+      if (housingPct > 40) {
+        doc.setTextColor(...RED);
+        doc.text(`Housing alone is ${housingPct.toFixed(0)}% of your income — well above the 30% guideline.`, margin, y);
+      } else if (housingPct > 30) {
+        doc.setTextColor(...AMBER);
+        doc.text(`Housing is ${housingPct.toFixed(0)}% of your income — above the 30% guideline but still manageable.`, margin, y);
+      } else {
+        doc.setTextColor(...GREEN);
+        doc.text(`Housing is ${housingPct.toFixed(0)}% of your income — within the 30% guideline.`, margin, y);
+      }
+      y += 4;
+      doc.setTextColor(leftover >= 0 ? GREEN[0] : RED[0], leftover >= 0 ? GREEN[1] : RED[1], leftover >= 0 ? GREEN[2] : RED[2]);
+      doc.text(`After all costs you have ${formatDollar(Math.abs(leftover))}/mo ${leftover >= 0 ? 'left over' : 'short'}.`, margin, y);
+      y += 10;
+    }
+
+    // --- Time Cost ---
+    doc.setFontSize(14);
+    doc.setTextColor(...DARK);
+    doc.text('The Time Cost', margin, y);
+    y += 3;
+    doc.setFontSize(9);
+    doc.setTextColor(...GRAY);
+    doc.text(`${inputs.commuteDistanceKm} km each way, ${inputs.commuteDaysPerWeek} days a week`, margin, y);
+    y += 7;
+
+    autoTable(doc, {
+      startY: y,
+      margin: { left: margin, right: margin },
+      theme: 'plain',
+      styles: { fontSize: 10, cellPadding: 4 },
+      columnStyles: {
+        0: { textColor: GRAY, fontStyle: 'normal' },
+        1: { textColor: DARK, fontStyle: 'bold', halign: 'right' },
+      },
+      body: [
+        ['Weekly commute (return trips)', `${col.weeklyCommuteHours.toFixed(1)} hrs`],
+        ['Annual commute', `${Math.round(col.annualCommuteHours)} hrs — that\'s ${annualDays} full days`],
+        ['Over 10 years', `${Math.round(col.tenYearCommuteHours).toLocaleString()} hrs — ${tenYearDays} full days`],
+      ],
+    });
+
+    y = getFinalY(doc) + 4;
+    doc.setFontSize(9);
+    doc.setTextColor(...AMBER);
+    if (annualDays > 20) {
+      doc.text(`You\'d spend more time commuting each year (${annualDays} days) than most people get in annual leave.`, margin, y);
+    } else {
+      doc.text(`That\'s ${annualDays} full 24-hour days per year on the road.`, margin, y);
+    }
+    y += 10;
+
+    // --- Cost Breakdown ---
+    doc.setFontSize(14);
+    doc.setTextColor(...DARK);
+    doc.text('Monthly Cost Breakdown', margin, y);
     y += 8;
 
     autoTable(doc, {
@@ -259,14 +385,20 @@ export function generatePdf(data: ReportData): jsPDF {
 
     y = getFinalY(doc) + 10;
 
-    // Transport breakdown
-    doc.setFontSize(14);
-    doc.setTextColor(...DARK);
-    doc.text('Transport Breakdown', margin, y);
-    y += 8;
+    // Check if we need a new page for the detailed breakdowns
+    if (y > 180) {
+      doc.addPage();
+      y = 20;
+    }
 
+    // --- Transport Details ---
     const transportMode = inputs.transportMode === 'drive' ? 'Driving' :
       inputs.transportMode === 'transit' ? 'Public transport' : 'Mix (drive + transit)';
+
+    doc.setFontSize(12);
+    doc.setTextColor(...DARK);
+    doc.text('Transport Details', margin, y);
+    y += 6;
 
     autoTable(doc, {
       startY: y,
@@ -281,40 +413,17 @@ export function generatePdf(data: ReportData): jsPDF {
         ['One-way travel time', `${inputs.commuteDurationMinutes} min`],
         ['Days per week', `${inputs.commuteDaysPerWeek}`],
         ['Monthly transport cost', formatDollar(col.monthlyTransportCost)],
+        ['Annual transport cost', formatDollar(col.annualTransportCost)],
       ],
     });
 
-    y = getFinalY(doc) + 10;
+    y = getFinalY(doc) + 8;
 
-    // Commute time
-    doc.setFontSize(14);
-    doc.setTextColor(...DARK);
-    doc.text('Commute Time', margin, y);
-    y += 8;
-
-    const annualDays = Math.round(col.annualCommuteHours / 24);
-
-    autoTable(doc, {
-      startY: y,
-      margin: { left: margin, right: margin },
-      theme: 'striped',
-      headStyles: { fillColor: SKY, textColor: WHITE, fontStyle: 'bold' },
-      styles: { fontSize: 9, cellPadding: 3 },
-      head: [['Period', 'Hours']],
-      body: [
-        ['Weekly commute', `${col.weeklyCommuteHours.toFixed(1)} hrs`],
-        ['Annual commute', `${Math.round(col.annualCommuteHours)} hrs (~${annualDays} full days)`],
-        ['Over 10 years', `${Math.round(col.tenYearCommuteHours).toLocaleString()} hrs`],
-      ],
-    });
-
-    y = getFinalY(doc) + 10;
-
-    // Living expenses breakdown
-    doc.setFontSize(14);
+    // --- Living Expenses ---
+    doc.setFontSize(12);
     doc.setTextColor(...DARK);
     doc.text('Living Expenses', margin, y);
-    y += 8;
+    y += 6;
 
     autoTable(doc, {
       startY: y,

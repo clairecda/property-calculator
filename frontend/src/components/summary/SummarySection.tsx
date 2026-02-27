@@ -1,10 +1,12 @@
 import { usePropertyCosts } from '@/hooks/usePropertyCosts';
+import { useCostOfLiving } from '@/hooks/useCostOfLiving';
 import { KpiCard } from '@/components/ui/KpiCard';
 import { formatDollar, formatPercent } from '@/lib/formatters';
 import { Banknote, CalendarDays, Percent } from 'lucide-react';
 
 export function SummarySection() {
   const p = usePropertyCosts();
+  const col = useCostOfLiving();
 
   return (
     <section id="summary">
@@ -84,6 +86,19 @@ export function SummarySection() {
             </tbody>
           </table>
         </div>
+      </div>
+
+      {/* All-in cost hint */}
+      <div className="mt-4 rounded border border-sky-100 bg-sky-50 px-4 py-3">
+        <div className="flex items-center justify-between">
+          <span className="text-sm text-sky-800">
+            Total including transport & living costs
+          </span>
+          <span className="text-lg font-bold text-sky-700">{formatDollar(col.totalMonthlyAllIn)}/mo</span>
+        </div>
+        <p className="mt-1 text-xs text-sky-600">
+          Property + commute + everyday expenses. See the Cost of Living tab for the full breakdown.
+        </p>
       </div>
     </section>
   );

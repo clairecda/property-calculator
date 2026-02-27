@@ -1,6 +1,6 @@
 import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
-import type { PropertyCosts, ForecastRow, ScenarioResult, InputState } from '@/types';
+import type { PropertyCosts, ForecastRow, ScenarioResult, InputState, CostOfLivingResult } from '@/types';
 import { formatDollar, formatPercent } from './formatters';
 
 interface ReportData {
@@ -8,6 +8,7 @@ interface ReportData {
   forecast: ForecastRow[];
   scenarios: ScenarioResult[];
   inputs: InputState;
+  costOfLiving?: CostOfLivingResult;
 }
 
 type Color3 = [number, number, number];
@@ -213,7 +214,130 @@ export function generatePdf(data: ReportData): jsPDF {
     body: scenarioRows,
   });
 
-  // ========== PAGE 3: Annex — All Inputs & Assumptions ==========
+  // ========== PAGE 3: Cost of Living ==========
+  if (data.costOfLiving) {
+    const col = data.costOfLiving;
+    doc.addPage();
+    y = 20;
+
+    doc.setFontSize(18);
+    doc.setTextColor(...SKY);
+    doc.text('Cost of Living', margin, y);
+    y += 8;
+
+    doc.setFontSize(9);
+    doc.setTextColor(...GRAY);
+    doc.text('Property costs + transport + everyday expenses — how much it really costs to live here.', margin, y);
+    y += 8;
+
+    doc.setDrawColor(...SKY);
+    doc.setLineWidth(0.5);
+    doc.line(margin, y, pageWidth - margin, y);
+    y += 10;
+
+    // All-in summary
+    doc.setFontSize(14);
+    doc.setTextColor(...DARK);
+    doc.text('All-In Monthly Cost', margin, y);
+    y += 8;
+
+    autoTable(doc, {
+      startY: y,
+      margin: { left: margin, right: margin },
+      theme: 'grid',
+      headStyles: { fillColor: SKY, textColor: WHITE, fontStyle: 'bold', fontSize: 10 },
+      styles: { fontSize: 10, cellPadding: 4 },
+      head: [['Category', 'Monthly', 'Annual']],
+      body: [
+        ['Property costs', formatDollar(costs.totalMonthly), formatDollar(costs.annualCosts)],
+        ['Transport', formatDollar(col.monthlyTransportCost), formatDollar(col.annualTransportCost)],
+        ['Living expenses', formatDollar(col.monthlyLivingExpenses), formatDollar(col.monthlyLivingExpenses * 12)],
+      ],
+      foot: [['Total', formatDollar(col.totalMonthlyAllIn), formatDollar(col.annualAllIn)]],
+      footStyles: { fillColor: LIGHT_SKY, textColor: SKY, fontStyle: 'bold' },
+    });
+
+    y = getFinalY(doc) + 10;
+
+    // Transport breakdown
+    doc.setFontSize(14);
+    doc.setTextColor(...DARK);
+    doc.text('Transport Breakdown', margin, y);
+    y += 8;
+
+    const transportMode = inputs.transportMode === 'drive' ? 'Driving' :
+      inputs.transportMode === 'transit' ? 'Public transport' : 'Mix (drive + transit)';
+
+    autoTable(doc, {
+      startY: y,
+      margin: { left: margin, right: margin },
+      theme: 'striped',
+      headStyles: { fillColor: SKY, textColor: WHITE, fontStyle: 'bold' },
+      styles: { fontSize: 9, cellPadding: 3 },
+      head: [['Detail', 'Value']],
+      body: [
+        ['Transport mode', transportMode],
+        ['One-way distance', `${inputs.commuteDistanceKm} km`],
+        ['One-way travel time', `${inputs.commuteDurationMinutes} min`],
+        ['Days per week', `${inputs.commuteDaysPerWeek}`],
+        ['Monthly transport cost', formatDollar(col.monthlyTransportCost)],
+      ],
+    });
+
+    y = getFinalY(doc) + 10;
+
+    // Commute time
+    doc.setFontSize(14);
+    doc.setTextColor(...DARK);
+    doc.text('Commute Time', margin, y);
+    y += 8;
+
+    const annualDays = Math.round(col.annualCommuteHours / 24);
+
+    autoTable(doc, {
+      startY: y,
+      margin: { left: margin, right: margin },
+      theme: 'striped',
+      headStyles: { fillColor: SKY, textColor: WHITE, fontStyle: 'bold' },
+      styles: { fontSize: 9, cellPadding: 3 },
+      head: [['Period', 'Hours']],
+      body: [
+        ['Weekly commute', `${col.weeklyCommuteHours.toFixed(1)} hrs`],
+        ['Annual commute', `${Math.round(col.annualCommuteHours)} hrs (~${annualDays} full days)`],
+        ['Over 10 years', `${Math.round(col.tenYearCommuteHours).toLocaleString()} hrs`],
+      ],
+    });
+
+    y = getFinalY(doc) + 10;
+
+    // Living expenses breakdown
+    doc.setFontSize(14);
+    doc.setTextColor(...DARK);
+    doc.text('Living Expenses', margin, y);
+    y += 8;
+
+    autoTable(doc, {
+      startY: y,
+      margin: { left: margin, right: margin },
+      theme: 'striped',
+      headStyles: { fillColor: SKY, textColor: WHITE, fontStyle: 'bold' },
+      styles: { fontSize: 9, cellPadding: 3 },
+      head: [['Expense', 'Monthly']],
+      body: [
+        ['Groceries', formatDollar(inputs.monthlyGroceries)],
+        ['Dining out & takeaway', formatDollar(inputs.monthlyDiningOut)],
+        ['Utilities', formatDollar(inputs.monthlyUtilities)],
+        ['Internet', formatDollar(inputs.monthlyInternet)],
+        ['Subscriptions', formatDollar(inputs.monthlySubscriptions)],
+        ['Health insurance', formatDollar(inputs.monthlyHealthInsurance)],
+        ['Other', formatDollar(inputs.monthlyOtherExpenses)],
+      ],
+      foot: [['Total', formatDollar(col.monthlyLivingExpenses)]],
+      footStyles: { fillColor: LIGHT_SKY, textColor: SKY, fontStyle: 'bold' },
+    });
+  }
+
+  // ========== PAGE 4: Annex — All Inputs & Assumptions ==========
   doc.addPage();
   y = 20;
 

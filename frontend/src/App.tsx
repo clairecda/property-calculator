@@ -6,12 +6,14 @@ import { RiskSection } from '@/components/risk/RiskSection';
 import { HelpSection } from '@/components/help/HelpSection';
 import { useStateBenefits } from '@/hooks/useStateBenefits';
 import { cn } from '@/lib/utils';
-import { BarChart3, TrendingUp, Shield, HelpCircle } from 'lucide-react';
+import { CostOfLivingSection } from '@/components/costOfLiving/CostOfLivingSection';
+import { BarChart3, TrendingUp, Shield, Wallet, HelpCircle } from 'lucide-react';
 
 const TABS = [
   { id: 'summary', label: 'Summary', icon: BarChart3 },
   { id: 'forecast', label: 'Forecast', icon: TrendingUp },
   { id: 'risk', label: 'What If?', icon: Shield },
+  { id: 'costOfLiving', label: 'Cost of Living', icon: Wallet },
   { id: 'help', label: 'Help', icon: HelpCircle },
 ] as const;
 
@@ -50,6 +52,7 @@ export default function App() {
         {activeTab === 'summary' && <SummarySection />}
         {activeTab === 'forecast' && <ForecastSection />}
         {activeTab === 'risk' && <RiskSection />}
+        {activeTab === 'costOfLiving' && <CostOfLivingSection />}
         {activeTab === 'help' && <HelpSection />}
 
         {/* Credit */}

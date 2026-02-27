@@ -38,6 +38,44 @@ export const DEFAULT_INPUTS: InputState = {
   scenarioPriceChange: 0,
   scenarioRateChange: 0,
   scenarioGrowthChange: 0,
+
+  // Cost of Living — Income (after tax)
+  yourAnnualIncome: 57000,
+  partnerAnnualIncome: 0,
+
+  // Cost of Living — Commute
+  workAddress: '',
+  propertyAddress: '',
+  commuteDistanceKm: 15,
+  commuteDurationMinutes: 30,
+  commuteDaysPerWeek: 5,
+  transportMode: 'drive',
+  carCostPerKm: 0.85,
+  carParkingDaily: 0,
+  monthlyTransitPass: 170,
+
+  // Cost of Living — Partner commute
+  partnerWorkAddress: '',
+  partnerCommuteDistanceKm: 0,
+  partnerCommuteDurationMinutes: 0,
+  partnerTransportMode: 'drive',
+
+  // Cost of Living — Monthly expenses
+  monthlyGroceries: 600,
+  monthlyDiningOut: 200,
+  monthlyUtilities: 300,
+  monthlyInternet: 80,
+  monthlySubscriptions: 50,
+  monthlyHealthInsurance: 200,
+  monthlyOtherExpenses: 100,
+
+  // Cost of Living — Location comparison
+  comparisonEnabled: false,
+  comparisonPropertyAddress: '',
+  comparisonCommuteDistanceKm: 20,
+  comparisonCommuteDurationMinutes: 45,
+  comparisonPurchasePrice: 550000,
+  comparisonStampDuty: 12000,
 };
 
 export const STATES: AustralianState[] = ['NSW', 'VIC', 'QLD', 'WA', 'SA', 'TAS', 'ACT', 'NT'];

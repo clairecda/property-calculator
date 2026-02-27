@@ -107,6 +107,83 @@ export interface InputState {
   scenarioPriceChange: number;
   scenarioRateChange: number;
   scenarioGrowthChange: number;
+
+  // Cost of Living — Income
+  yourAnnualIncome: number;
+  partnerAnnualIncome: number;
+
+  // Cost of Living — Commute
+  workAddress: string;
+  propertyAddress: string;
+  commuteDistanceKm: number;
+  commuteDurationMinutes: number;
+  commuteDaysPerWeek: number;
+  transportMode: TransportMode;
+  carCostPerKm: number;
+  carParkingDaily: number;
+  monthlyTransitPass: number;
+
+  // Cost of Living — Partner commute
+  partnerWorkAddress: string;
+  partnerCommuteDistanceKm: number;
+  partnerCommuteDurationMinutes: number;
+  partnerTransportMode: TransportMode;
+
+  // Cost of Living — Monthly expenses
+  monthlyGroceries: number;
+  monthlyDiningOut: number;
+  monthlyUtilities: number;
+  monthlyInternet: number;
+  monthlySubscriptions: number;
+  monthlyHealthInsurance: number;
+  monthlyOtherExpenses: number;
+
+  // Cost of Living — Location comparison
+  comparisonEnabled: boolean;
+  comparisonPropertyAddress: string;
+  comparisonCommuteDistanceKm: number;
+  comparisonCommuteDurationMinutes: number;
+  comparisonPurchasePrice: number;
+  comparisonStampDuty: number;
 }
 
 export type BenefitsSource = 'live' | 'cached' | 'default';
+
+export type TransportMode = 'drive' | 'transit' | 'mix';
+
+export interface CostOfLivingResult {
+  dailyCommuteKm: number;
+  dailyCommuteMinutes: number;
+  weeklyCommuteHours: number;
+  monthlyTransportCost: number;
+  annualTransportCost: number;
+  monthlyLivingExpenses: number;
+  totalMonthlyCostOfLiving: number;
+  totalMonthlyAllIn: number;
+  annualAllIn: number;
+  tenYearAllIn: number;
+  annualCommuteHours: number;
+  tenYearCommuteHours: number;
+  partnerMonthlyTransportCost: number;
+  partnerAnnualCommuteHours: number;
+}
+
+export interface LocationComparisonResult {
+  propertyA: LocationSummary;
+  propertyB: LocationSummary;
+  monthlySavings: number;
+  annualSavings: number;
+  tenYearSavings: number;
+  commuteTimeDiffHoursPerYear: number;
+  cheaperOption: 'A' | 'B' | 'same';
+}
+
+export interface LocationSummary {
+  label: string;
+  monthlyProperty: number;
+  monthlyTransport: number;
+  monthlyLiving: number;
+  monthlyTotal: number;
+  annualTotal: number;
+  commuteHoursPerYear: number;
+}

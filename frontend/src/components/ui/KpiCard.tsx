@@ -4,6 +4,7 @@ interface KpiCardProps {
   icon: React.ReactNode;
   label: string;
   value: string;
+  hint?: string;
   color?: 'sky' | 'red' | 'amber';
 }
 
@@ -13,7 +14,7 @@ const colorMap = {
   amber: 'border-amber-500 text-amber-600',
 };
 
-export function KpiCard({ icon, label, value, color = 'sky' }: KpiCardProps) {
+export function KpiCard({ icon, label, value, hint, color = 'sky' }: KpiCardProps) {
   return (
     <div className={cn('rounded border bg-white text-center', colorMap[color])}>
       <div className="p-4">
@@ -22,6 +23,7 @@ export function KpiCard({ icon, label, value, color = 'sky' }: KpiCardProps) {
           <span>{label}</span>
         </div>
         <div className="text-2xl font-bold">{value}</div>
+        {hint && <div className="mt-1 text-xs text-gray-400">{hint}</div>}
       </div>
     </div>
   );

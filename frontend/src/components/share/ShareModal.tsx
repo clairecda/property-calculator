@@ -3,6 +3,7 @@ import { X, Download, Mail } from 'lucide-react';
 import { usePropertyCosts } from '@/hooks/usePropertyCosts';
 import { useForecast } from '@/hooks/useForecast';
 import { useScenarios } from '@/hooks/useScenarios';
+import { useCostOfLiving } from '@/hooks/useCostOfLiving';
 import { useStore } from '@/store/useStore';
 import { generatePdf } from '@/lib/generatePdf';
 import type { InputState } from '@/types';
@@ -18,6 +19,7 @@ export function ShareModal({ open, onClose }: ShareModalProps) {
   const costs = usePropertyCosts();
   const forecast = useForecast();
   const scenarios = useScenarios();
+  const costOfLiving = useCostOfLiving();
   const store = useStore();
 
   const inputs: InputState = {
@@ -51,6 +53,34 @@ export function ShareModal({ open, onClose }: ShareModalProps) {
     scenarioPriceChange: store.scenarioPriceChange,
     scenarioRateChange: store.scenarioRateChange,
     scenarioGrowthChange: store.scenarioGrowthChange,
+    yourAnnualIncome: store.yourAnnualIncome,
+    partnerAnnualIncome: store.partnerAnnualIncome,
+    workAddress: store.workAddress,
+    propertyAddress: store.propertyAddress,
+    commuteDistanceKm: store.commuteDistanceKm,
+    commuteDurationMinutes: store.commuteDurationMinutes,
+    commuteDaysPerWeek: store.commuteDaysPerWeek,
+    transportMode: store.transportMode,
+    carCostPerKm: store.carCostPerKm,
+    carParkingDaily: store.carParkingDaily,
+    monthlyTransitPass: store.monthlyTransitPass,
+    partnerWorkAddress: store.partnerWorkAddress,
+    partnerCommuteDistanceKm: store.partnerCommuteDistanceKm,
+    partnerCommuteDurationMinutes: store.partnerCommuteDurationMinutes,
+    partnerTransportMode: store.partnerTransportMode,
+    monthlyGroceries: store.monthlyGroceries,
+    monthlyDiningOut: store.monthlyDiningOut,
+    monthlyUtilities: store.monthlyUtilities,
+    monthlyInternet: store.monthlyInternet,
+    monthlySubscriptions: store.monthlySubscriptions,
+    monthlyHealthInsurance: store.monthlyHealthInsurance,
+    monthlyOtherExpenses: store.monthlyOtherExpenses,
+    comparisonEnabled: store.comparisonEnabled,
+    comparisonPropertyAddress: store.comparisonPropertyAddress,
+    comparisonCommuteDistanceKm: store.comparisonCommuteDistanceKm,
+    comparisonCommuteDurationMinutes: store.comparisonCommuteDurationMinutes,
+    comparisonPurchasePrice: store.comparisonPurchasePrice,
+    comparisonStampDuty: store.comparisonStampDuty,
   };
 
   if (!open) return null;
@@ -58,7 +88,7 @@ export function ShareModal({ open, onClose }: ShareModalProps) {
   function handleDownload() {
     setDownloading(true);
     try {
-      const doc = generatePdf({ costs, forecast, scenarios, inputs });
+      const doc = generatePdf({ costs, forecast, scenarios, inputs, costOfLiving });
       const filename = `property-report-${costs.propertyName.replace(/\s+/g, '-').toLowerCase()}.pdf`;
       doc.save(filename);
     } finally {
@@ -68,7 +98,7 @@ export function ShareModal({ open, onClose }: ShareModalProps) {
 
   function handleEmail() {
     // Generate PDF and download it first
-    const doc = generatePdf({ costs, forecast, scenarios, inputs });
+    const doc = generatePdf({ costs, forecast, scenarios, inputs, costOfLiving });
     const filename = `property-report-${costs.propertyName.replace(/\s+/g, '-').toLowerCase()}.pdf`;
     doc.save(filename);
 

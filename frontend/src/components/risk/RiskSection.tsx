@@ -13,7 +13,7 @@ function CustomScenarioPanel() {
   const base = usePropertyCosts();
   const result = useCustomScenario();
 
-  const hasScenario = store.scenarioPriceChange > 0 || store.scenarioRateChange > 0;
+  const hasScenario = store.scenarioPriceChange > 0 || store.scenarioRateChange > 0 || store.scenarioGrowthChange !== 0;
   const monthlyDiff = result.monthlyDiff;
   const upfrontDiff = result.upfrontDiff;
   const net10yrDiff = result.netPosition10yrDiff;
@@ -26,9 +26,9 @@ function CustomScenarioPanel() {
         <SlidersHorizontal className="h-4 w-4" /> Build Your Own Scenario
       </h3>
       <p className="mb-4 text-sm text-gray-500">
-        Drag the sliders to see what happens if the house costs more or interest rates go up.
+        Drag the sliders to see what happens if the house costs more, rates change, or property values go down.
       </p>
-      <div className="grid gap-4 sm:grid-cols-2">
+      <div className="grid gap-4 sm:grid-cols-3">
         <Slider
           label="House costs more by"
           value={store.scenarioPriceChange}
@@ -47,7 +47,27 @@ function CustomScenarioPanel() {
           suffix="%"
           onChange={(v) => setField('scenarioRateChange', v)}
         />
+        <Slider
+          label="Property growth changes by"
+          value={store.scenarioGrowthChange}
+          min={-10}
+          max={5}
+          step={0.5}
+          suffix="%"
+          onChange={(v) => setField('scenarioGrowthChange', v)}
+        />
       </div>
+      {store.scenarioGrowthChange !== 0 && (
+        <p className="mt-2 text-xs text-gray-400">
+          Effective growth rate: {(store.propertyGrowthRate + store.scenarioGrowthChange).toFixed(1)}%/yr
+          {store.propertyGrowthRate + store.scenarioGrowthChange < 0 && (
+            <span className="ml-1 font-medium text-red-500">— property loses value every year!</span>
+          )}
+          {store.propertyGrowthRate + store.scenarioGrowthChange === 0 && (
+            <span className="ml-1 font-medium text-amber-500">— flat market, no growth</span>
+          )}
+        </p>
+      )}
 
       {hasScenario && (
         <Alert variant={severity} className="mt-4">
@@ -128,16 +148,26 @@ function ScenarioTable() {
               <div>
                 <div className="text-xs text-gray-400">Monthly repayments</div>
                 <div className="font-semibold text-gray-800">{formatDollar(s.totalMonthly)}</div>
-                <div className={cn('text-xs font-medium', monthlyDiff > 0 ? 'text-red-600' : 'text-green-600')}>
-                  {formatSignedDollar(monthlyDiff)} more per month
-                </div>
+                {monthlyDiff !== 0 && (
+                  <div className={cn('text-xs font-medium', monthlyDiff > 0 ? 'text-red-600' : 'text-green-600')}>
+                    {formatSignedDollar(monthlyDiff)} per month
+                  </div>
+                )}
+                {monthlyDiff === 0 && (
+                  <div className="text-xs text-gray-400">No change</div>
+                )}
               </div>
               <div>
                 <div className="text-xs text-gray-400">Cash needed on day one</div>
                 <div className="font-semibold text-gray-800">{formatDollar(s.upfrontCash)}</div>
-                <div className={cn('text-xs font-medium', upfrontDiff > 0 ? 'text-red-600' : 'text-green-600')}>
-                  {formatSignedDollar(upfrontDiff)} more upfront
-                </div>
+                {upfrontDiff !== 0 && (
+                  <div className={cn('text-xs font-medium', upfrontDiff > 0 ? 'text-red-600' : 'text-green-600')}>
+                    {formatSignedDollar(upfrontDiff)} upfront
+                  </div>
+                )}
+                {upfrontDiff === 0 && (
+                  <div className="text-xs text-gray-400">No change</div>
+                )}
               </div>
               <div className="col-span-2 sm:col-span-1">
                 <div className="text-xs text-gray-400">Property value minus total spent (10yr)</div>
@@ -159,7 +189,7 @@ export function RiskSection() {
     <section id="risk">
       <h2 className="mb-2 text-xl font-bold text-gray-800">What If?</h2>
       <p className="mb-6 text-sm text-gray-500">
-        See how your numbers change if the house costs more or interest rates rise.
+        See how your numbers change if the house costs more, interest rates rise, or property values drop.
       </p>
 
       <CustomScenarioPanel />
@@ -167,7 +197,8 @@ export function RiskSection() {
       <h3 className="mb-3 font-semibold text-gray-800">Quick Comparisons</h3>
       <p className="mb-4 text-sm text-gray-500">
         Each row shows what would happen compared to your current plan.
-        <span className="text-red-600"> Red</span> = costs you more.
+        <span className="text-red-600"> Red</span> = worse for you.
+        <span className="text-green-600"> Green</span> = better.
       </p>
 
       <ScenarioTable />

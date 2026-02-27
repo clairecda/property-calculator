@@ -12,7 +12,7 @@ export function useScenarios() {
 
   return useMemo<ScenarioResult[]>(() => {
     return SCENARIOS.map((s) => ({
-      ...calculateScenario(costs, s.priceAdd, s.rateAdd, growth, rateBump),
+      ...calculateScenario(costs, s.priceAdd, s.rateAdd, s.growthOverride ?? growth, rateBump),
       name: s.name,
     }));
   }, [costs, growth, rateBump]);
@@ -24,9 +24,12 @@ export function useCustomScenario() {
   const rateBump = useStore((s) => s.rateIncreaseYear2);
   const priceChange = useStore((s) => s.scenarioPriceChange);
   const rateChange = useStore((s) => s.scenarioRateChange);
+  const growthChange = useStore((s) => s.scenarioGrowthChange);
+
+  const effectiveGrowth = growthChange !== 0 ? growth + growthChange : growth;
 
   return useMemo(
-    () => calculateCustomScenario(costs, priceChange, rateChange, growth, rateBump),
-    [costs, priceChange, rateChange, growth, rateBump],
+    () => calculateCustomScenario(costs, priceChange, rateChange, effectiveGrowth, rateBump),
+    [costs, priceChange, rateChange, effectiveGrowth, rateBump],
   );
 }

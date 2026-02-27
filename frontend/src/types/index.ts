@@ -106,6 +106,7 @@ export interface InputState {
   // Scenario
   scenarioPriceChange: number;
   scenarioRateChange: number;
+  scenarioGrowthChange: number;
 }
 
 export type BenefitsSource = 'live' | 'cached' | 'default';

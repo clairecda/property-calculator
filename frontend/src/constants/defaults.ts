@@ -37,6 +37,7 @@ export const DEFAULT_INPUTS: InputState = {
 
   scenarioPriceChange: 0,
   scenarioRateChange: 0,
+  scenarioGrowthChange: 0,
 };
 
 export const STATES: AustralianState[] = ['NSW', 'VIC', 'QLD', 'WA', 'SA', 'TAS', 'ACT', 'NT'];
@@ -55,11 +56,14 @@ export const FALLBACK_BENEFITS: Record<AustralianState, StateBenefits> = {
 export const MILESTONE_YEARS = [1, 5, 10, 15, 20, 25, 30];
 export const CHART_KEY_YEARS = [10, 20, 30];
 
-export const SCENARIOS = [
+export const SCENARIOS: { name: string; priceAdd: number; rateAdd: number; growthOverride?: number }[] = [
   { name: 'Current', priceAdd: 0, rateAdd: 0 },
   { name: '+$50K house', priceAdd: 50000, rateAdd: 0 },
   { name: '+$100K house', priceAdd: 100000, rateAdd: 0 },
   { name: '+1% rate', priceAdd: 0, rateAdd: 1 },
   { name: '+2% rate', priceAdd: 0, rateAdd: 2 },
+  { name: 'No growth (flat market)', priceAdd: 0, rateAdd: 0, growthOverride: 0 },
+  { name: 'Value drops 2%/yr', priceAdd: 0, rateAdd: 0, growthOverride: -2 },
+  { name: 'Value drops 5%/yr', priceAdd: 0, rateAdd: 0, growthOverride: -5 },
   { name: 'Worst case (+$100K +2%)', priceAdd: 100000, rateAdd: 2 },
 ];

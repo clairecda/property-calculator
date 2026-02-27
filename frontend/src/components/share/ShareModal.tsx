@@ -50,6 +50,7 @@ export function ShareModal({ open, onClose }: ShareModalProps) {
     rateIncreaseYear2: store.rateIncreaseYear2,
     scenarioPriceChange: store.scenarioPriceChange,
     scenarioRateChange: store.scenarioRateChange,
+    scenarioGrowthChange: store.scenarioGrowthChange,
   };
 
   if (!open) return null;

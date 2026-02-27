@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { X, Download, Mail } from 'lucide-react';
+import { X, Download } from 'lucide-react';
 import { usePropertyCosts } from '@/hooks/usePropertyCosts';
 import { useForecast } from '@/hooks/useForecast';
 import { useScenarios } from '@/hooks/useScenarios';
@@ -14,7 +14,6 @@ interface ShareModalProps {
 }
 
 export function ShareModal({ open, onClose }: ShareModalProps) {
-  const [email, setEmail] = useState('');
   const [downloading, setDownloading] = useState(false);
   const costs = usePropertyCosts();
   const forecast = useForecast();
@@ -96,27 +95,6 @@ export function ShareModal({ open, onClose }: ShareModalProps) {
     }
   }
 
-  function handleEmail() {
-    // Generate PDF and download it first
-    const doc = generatePdf({ costs, forecast, scenarios, inputs, costOfLiving });
-    const filename = `property-report-${costs.propertyName.replace(/\s+/g, '-').toLowerCase()}.pdf`;
-    doc.save(filename);
-
-    // Open email client with pre-filled message
-    const subject = encodeURIComponent(`Property Report: ${costs.propertyName}`);
-    const body = encodeURIComponent(
-      `Hi,\n\nPlease find attached the property purchase report for "${costs.propertyName}".\n\n` +
-      `Key numbers:\n` +
-      `- Purchase price: $${costs.purchasePrice.toLocaleString()}\n` +
-      `- Monthly repayments: $${Math.round(costs.totalMonthly).toLocaleString()}\n` +
-      `- Cash needed on day one: $${Math.round(costs.upfrontCashNeeded).toLocaleString()}\n\n` +
-      `The full PDF report is attached.\n\n` +
-      `Generated with Property Purchase Calculator by Claire Boulange`
-    );
-    const mailto = `mailto:${encodeURIComponent(email)}?subject=${subject}&body=${body}`;
-    window.open(mailto, '_blank');
-  }
-
   return (
     <>
       {/* Backdrop */}
@@ -149,36 +127,6 @@ export function ShareModal({ open, onClose }: ShareModalProps) {
                 <Download className="h-4 w-4" />
                 {downloading ? 'Generating...' : 'Download PDF'}
               </button>
-            </div>
-
-            <hr className="border-gray-200" />
-
-            {/* Email */}
-            <div>
-              <h3 className="mb-2 text-sm font-semibold text-gray-700">Email report</h3>
-              <p className="mb-3 text-xs text-gray-500">
-                Downloads the PDF, then opens your email app with a pre-filled message. Just attach the PDF and send.
-              </p>
-              <div className="flex gap-2">
-                <input
-                  type="email"
-                  placeholder="recipient@email.com"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="flex-1 rounded-lg border border-gray-300 px-3 py-2 text-sm focus:border-sky-600 focus:ring-1 focus:ring-sky-600 focus:outline-none"
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter' && email) handleEmail();
-                  }}
-                />
-                <button
-                  onClick={handleEmail}
-                  disabled={!email}
-                  className="flex items-center gap-1.5 rounded-lg bg-gray-800 px-4 py-2 text-sm font-semibold text-white transition-all hover:bg-gray-900 disabled:opacity-40"
-                >
-                  <Mail className="h-4 w-4" />
-                  Send
-                </button>
-              </div>
             </div>
           </div>
 

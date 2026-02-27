@@ -1,0 +1,28 @@
+services:
+  # Frontend - Static Site
+  - type: web
+    name: property-calculator
+    runtime: static
+    buildCommand: cd frontend && npm install && npm run build
+    staticPublishPath: frontend/dist
+    envVars:
+      - key: VITE_API_URL
+        fromService:
+          name: property-calculator-api
+          type: web
+          envVarKey: RENDER_EXTERNAL_URL
+
+  # Backend - Web Service
+  - type: web
+    name: property-calculator-api
+    runtime: node
+    buildCommand: cd backend && npm install && npx tsc
+    startCommand: cd backend && node dist/index.js
+    envVars:
+      - key: PORT
+        value: 3001
+      - key: FRONTEND_URL
+        fromService:
+          name: property-calculator
+          type: web
+          envVarKey: RENDER_EXTERNAL_URL

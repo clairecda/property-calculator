@@ -1,0 +1,10 @@
+{
+  "NSW": { "grant": 0, "stampDutyConcession": 37800 },
+  "VIC": { "grant": 10000, "stampDutyConcession": 31070 },
+  "QLD": { "grant": 30000, "stampDutyConcession": 8750 },
+  "WA":  { "grant": 10000, "stampDutyConcession": 19940 },
+  "SA":  { "grant": 15000, "stampDutyConcession": 21330 },
+  "TAS": { "grant": 30000, "stampDutyConcession": 20240 },
+  "ACT": { "grant": 0, "stampDutyConcession": 25400 },
+  "NT":  { "grant": 10000, "stampDutyConcession": 23928 }
+}

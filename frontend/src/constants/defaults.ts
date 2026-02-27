@@ -8,6 +8,10 @@ export const DEFAULT_INPUTS: InputState = {
   stampDuty: 10500,
   lmi: 0,
 
+  // First home benefits — auto-filled from state data, editable by user
+  firstHomeGrant: 10000,
+  stampDutyConcession: 19940,
+
   hasPartner: false,
   yourDeposit: 50000,
   partnerDeposit: 0,

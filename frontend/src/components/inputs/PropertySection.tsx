@@ -59,6 +59,28 @@ export function PropertySection() {
         step={500}
         tooltip="Enter the full duty before any first-home concession."
       />
+
+      {store.isFirstHome && (
+        <div className="rounded border border-amber-200 bg-amber-50 p-3 space-y-2">
+          <p className="text-xs font-medium text-amber-800">
+            First home benefits for {store.state} — adjust if these don't match your situation
+          </p>
+          <NumberInput
+            label="First home grant"
+            value={store.firstHomeGrant}
+            onChange={(v) => setField('firstHomeGrant', v)}
+            step={1000}
+            tooltip="Government grant for eligible first home buyers — varies by state and property price"
+          />
+          <NumberInput
+            label="Stamp duty concession"
+            value={store.stampDutyConcession}
+            onChange={(v) => setField('stampDutyConcession', v)}
+            step={1000}
+            tooltip="Reduction in stamp duty for first home buyers — we subtract this from the stamp duty above"
+          />
+        </div>
+      )}
     </div>
   );
 }

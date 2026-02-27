@@ -13,6 +13,8 @@ export function usePropertyCosts() {
       lmi: store.lmi,
       state: store.state,
       isFirstHome: store.isFirstHome,
+      firstHomeGrant: store.firstHomeGrant,
+      stampDutyConcession: store.stampDutyConcession,
       yourDeposit: store.yourDeposit,
       partnerDeposit: store.partnerDeposit,
       interestRate: store.interestRate,
@@ -30,15 +32,14 @@ export function usePropertyCosts() {
       titleFees: store.titleFees,
       moving: store.moving,
       repairs: store.repairs,
-      liveBenefits: store.liveBenefits ?? undefined,
     });
   }, [
     store.propertyName, store.purchasePrice, store.stampDuty, store.lmi,
-    store.state, store.isFirstHome, store.yourDeposit, store.partnerDeposit,
+    store.state, store.isFirstHome, store.firstHomeGrant, store.stampDutyConcession,
+    store.yourDeposit, store.partnerDeposit,
     store.interestRate, store.loanTerm, store.councilRates, store.waterRates,
     store.strataFees, store.insurance, store.maintenancePercent,
     store.legalFees, store.inspection, store.loanApplication, store.valuation,
     store.mortgageReg, store.titleFees, store.moving, store.repairs,
-    store.liveBenefits,
   ]);
 }

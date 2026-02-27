@@ -70,6 +70,10 @@ export interface InputState {
   stampDuty: number;
   lmi: number;
 
+  // First home benefits (user-editable overrides)
+  firstHomeGrant: number;
+  stampDutyConcession: number;
+
   // Deposits
   hasPartner: boolean;
   yourDeposit: number;

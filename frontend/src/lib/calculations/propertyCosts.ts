@@ -19,6 +19,8 @@ export interface PropertyCostsInput {
   lmi: number;
   state: AustralianState;
   isFirstHome: boolean;
+  firstHomeGrant: number;
+  stampDutyConcession: number;
   yourDeposit: number;
   partnerDeposit: number;
   interestRate: number;
@@ -36,7 +38,6 @@ export interface PropertyCostsInput {
   titleFees: number;
   moving: number;
   repairs: number;
-  liveBenefits?: Record<AustralianState, StateBenefits>;
 }
 
 export function calculatePropertyCosts(input: PropertyCostsInput): PropertyCosts {
@@ -45,14 +46,15 @@ export function calculatePropertyCosts(input: PropertyCostsInput): PropertyCosts
     input.legalFees + input.inspection + input.loanApplication + input.valuation +
     input.mortgageReg + input.titleFees + input.moving + input.repairs;
 
-  const benefits = getStateBenefits(input.state, input.isFirstHome, input.liveBenefits);
+  const grant = input.isFirstHome ? input.firstHomeGrant : 0;
+  const concession = input.isFirstHome ? input.stampDutyConcession : 0;
 
   const baseLoan = Math.max(0, input.purchasePrice - totalDeposit);
   const totalLoan = baseLoan + input.lmi;
   const lvr = input.purchasePrice > 0 ? (totalLoan / input.purchasePrice) * 100 : 0;
 
-  const stampDutyAfter = Math.max(0, input.stampDuty - benefits.stampDutyConcession);
-  const upfrontCashNeeded = totalDeposit + stampDutyAfter + otherUpfront - benefits.grant;
+  const stampDutyAfter = Math.max(0, input.stampDuty - concession);
+  const upfrontCashNeeded = totalDeposit + stampDutyAfter + otherUpfront - grant;
 
   const monthlyMortgage = calculateMonthlyPayment(totalLoan, input.interestRate, input.loanTerm);
   const monthlyRates = (input.councilRates + input.waterRates) / 12;
@@ -72,9 +74,9 @@ export function calculatePropertyCosts(input: PropertyCostsInput): PropertyCosts
     lmi: input.lmi,
     totalLoan,
     lvr,
-    firstHomeGrant: benefits.grant,
-    stampDutyConcession: benefits.stampDutyConcession,
-    totalBenefits: benefits.grant + benefits.stampDutyConcession,
+    firstHomeGrant: grant,
+    stampDutyConcession: concession,
+    totalBenefits: grant + concession,
     stampDutyBefore: input.stampDuty,
     stampDutyAfter,
     otherUpfront,

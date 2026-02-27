@@ -28,6 +28,8 @@ export function ShareModal({ open, onClose }: ShareModalProps) {
     purchasePrice: store.purchasePrice,
     stampDuty: store.stampDuty,
     lmi: store.lmi,
+    firstHomeGrant: store.firstHomeGrant,
+    stampDutyConcession: store.stampDutyConcession,
     hasPartner: store.hasPartner,
     yourDeposit: store.yourDeposit,
     partnerDeposit: store.partnerDeposit,
